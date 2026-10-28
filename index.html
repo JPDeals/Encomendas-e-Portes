@@ -20,7 +20,7 @@ button.s{background:transparent;border:1px solid var(--bd);color:inherit}a.b{dis
 <p class="d" id="ob"></p>
 <button id="cp2" class="s" type="button">Copiar código</button><button id="jp" type="button" hidden>Já paguei</button><a id="wa" class="b" target="_blank" rel="noopener" hidden>Enviar comprovativo por WhatsApp</a><button id="pg" type="button" hidden>Ir para o pagamento</button></div>
 <script>
-var EXEC_URL='COLOCAR_URL_EXEC_AQUI',MAX=20,$=function(i){return document.getElementById(i)};
+var EXEC_URL='https://script.google.com/macros/s/AKfycbweytocbJsQn3s4_hJkOUaxHrokagBa0JXhXTzDFEZOByswpnwwonjVkuoRo7s6pOUF3A/exec',MAX=20,$=function(i){return document.getElementById(i)};
 function api(fn,arg){return new Promise(function(ok,ko){if(window.google&&google.script&&google.script.run){google.script.run.withSuccessHandler(ok).withFailureHandler(ko)[fn](arg)}
 else{fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({fn:fn,arg:arg})}).then(function(r){return r.json()}).then(ok,ko)}})}
 function linha(){var d=document.createElement('div');d.className='l';d.innerHTML='<div class="r"><input class="c" placeholder="Código do artigo" autocapitalize="characters"><input class="q" type="number" min="1" value="1" style="max-width:90px"></div><div class="d"></div>';
