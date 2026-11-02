@@ -20,7 +20,7 @@ button.s{background:transparent;border:1px solid var(--bd);color:inherit}a.b{dis
 <p class="d" id="ob"></p>
 <button id="cp2" class="s" type="button">Copiar código</button><button id="jp" type="button" hidden>Já paguei</button><a id="wa" class="b" target="_blank" rel="noopener" hidden>Enviar comprovativo por WhatsApp</a><button id="pg" type="button" hidden>Ir para o pagamento</button></div>
 <script>
-var EXEC_URL='COLOCAR_URL_EXEC_AQUI',MAX=20,$=function(i){return document.getElementById(i)};
+var EXEC_URL='https://script.google.com/macros/s/AKfycbweytocbJsQn3s4_hJkOUaxHrokagBa0JXhXTzDFEZOByswpnwwonjVkuoRo7s6pOUF3A/exec',MAX=20,$=function(i){return document.getElementById(i)};
 window.onerror=function(m){var e=document.getElementById('er');if(e)e.textContent='Erro ao carregar o formulário ('+m+'). Recarregue a página.'};
 function api(fn,arg){return new Promise(function(ok,ko){if(window.google&&google.script&&google.script.run){google.script.run.withSuccessHandler(ok).withFailureHandler(ko)[fn](arg)}
 else{fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({fn:fn,arg:arg})}).then(function(r){return r.json()}).then(ok,ko)}})}
@@ -50,7 +50,7 @@ $('met').addEventListener('change',function(){setMet();resumo()});fillPontos(PON
 api('getConfig').then(function(c){MAX=c.maxLinhas;window.PAGAR=c.urlPagar;window.RECOLHA_OK=(c.recolha===true);if(c.pontos&&c.pontos.length)fillPontos(c.pontos,c.pontoReferencia);
 $('ver').textContent='Formulário V1.4 · servidor '+(c.versao||'desatualizado (sem recolha local)');
 if(c.sugestoes)api('listarArtigos').then(function(r){var dl=$('cods');dl.innerHTML='';((r&&r.itens)||[]).forEach(function(x){var o=document.createElement('option');o.value=x.c;o.label=x.d;dl.appendChild(o)})},function(){})},
-function(){$('er').textContent=(EXEC_URL==='https://script.google.com/macros/s/AKfycbweytocbJsQn3s4_hJkOUaxHrokagBa0JXhXTzDFEZOByswpnwwonjVkuoRo7s6pOUF3A/exec'&&!(window.google&&google.script))?'URL do servidor por configurar (EXEC_URL).':'Sem ligação ao servidor. Verifique o URL /exec e se a implementação tem acesso "Qualquer pessoa".'});
+function(){$('er').textContent=(EXEC_URL==='COLOCAR_URL_EXEC_AQUI'&&!(window.google&&google.script))?'URL do servidor por configurar (EXEC_URL).':'Sem ligação ao servidor. Verifique o URL /exec e se a implementação tem acesso "Qualquer pessoa".'});
 $('go').onclick=function(){var L=[].map.call($('ls').children,function(d){return{codigo:d.querySelector('.c').value,qtd:+d.querySelector('.q').value}}).filter(function(x){return x.codigo});
 var d={linhas:L,consentimento:$('ok').checked,website:$('website').value};['nome','email','telefone','morada','cp','localidade','pais','nif','notas'].forEach(function(k){d[k]=$(k).value});d.metodo=$('met').value;d.ponto=$('ponto').value;d.janela=$('janela').value;
 $('er').textContent='';if(d.metodo==='recolha'&&window.RECOLHA_OK===false){$('er').textContent='O servidor ainda não foi atualizado para a recolha local (Apps Script: Implementar > Gerir implementações > Nova versão). Pedido não enviado.';return}$('go').disabled=true;api('criarEncomenda',d).then(function(r){$('go').disabled=false;if(!r.ok){$('er').textContent=r.erro;return}
