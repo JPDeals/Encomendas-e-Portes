@@ -7,26 +7,28 @@ input,select,textarea{width:100%;box-sizing:border-box;padding:10px;margin:4px 0
 .l{border:1px solid var(--bd);border-radius:10px;padding:8px;margin:8px 0}.d{color:var(--mu);font-size:.9rem;min-height:1.2em}
 .r{display:flex;gap:8px}.r>*{flex:1}button{padding:12px;border:0;border-radius:8px;background:var(--ac);color:#fff;font:inherit;font-weight:600;width:100%;margin:8px 0}
 button.s{background:transparent;border:1px solid var(--bd);color:inherit}a.b{display:block;box-sizing:border-box;text-align:center;padding:12px;border:1px solid var(--bd);border-radius:8px;color:#0000ee;font-weight:600;text-decoration:none;margin:8px 0}a.b[hidden]{display:none}@media(prefers-color-scheme:dark){a.b{color:#8ab4f8}}.e{color:#c0392b;margin:8px 0}.hp{position:absolute;left:-9999px}</style></head><body>
-<h1>Encomenda JPDeals</h1><p class="d">Indique o código de cada artigo (consta no anúncio).</p>
+<h1>Encomenda JPDeals</h1><datalist id="cods"></datalist><p class="d">Indique o código de cada artigo (consta no anúncio).</p>
 <div id="f"><h2>Artigos</h2><div id="ls"></div><button class="s" id="add" type="button">+ Adicionar artigo</button>
 <div class="l" id="res" hidden><div class="d" id="rt" style="white-space:pre-line"></div></div>
 <h2>Método de entrega</h2><select id="met"><option value="envio">Envio para a minha morada</option><option value="recolha">Recolha local (pagamento prévio por MB WAY)</option></select><div id="rc" hidden><select id="ponto"></select><select id="janela"><option value="Manhã">Manhã</option><option value="Tarde">Tarde</option></select><p class="d">Tunes é o ponto de referência; os restantes pontos são combinados caso a caso por WhatsApp. Combinaremos o momento exato por WhatsApp (janela de preferência: manhã ou tarde).</p></div><h2 id="eh">Entrega</h2><input id="nome" placeholder="Nome completo" autocomplete="name"><input id="email" type="email" placeholder="Email" autocomplete="email"><input id="telefone" type="tel" placeholder="Telefone" autocomplete="tel">
 <input id="morada" placeholder="Morada" autocomplete="street-address"><div class="r"><input id="cp" placeholder="Cód. postal 0000-000" autocomplete="postal-code"><input id="localidade" placeholder="Localidade"></div>
 <input id="pais" value="Portugal"><input id="nif" inputmode="numeric" placeholder="NIF para fatura (opcional)"><textarea id="notas" rows="2" placeholder="Notas (opcional)"></textarea>
 <input class="hp" id="website" tabindex="-1" autocomplete="off"><label><input type="checkbox" id="ok" style="width:auto"> Aceito que os meus dados sejam usados para processar e entregar esta encomenda.</label>
-<div class="e" id="er"></div><button id="go" type="button">Finalizar encomenda</button></div>
+<div class="e" id="er"></div><p class="d" id="ver"></p><button id="go" type="button">Finalizar encomenda</button></div>
 <div id="fim" hidden><h2>Encomenda registada</h2><p>Código: <b id="cod"></b></p><p id="tot" style="white-space:pre-line"></p>
 <div id="mb" hidden><h2>Pagamento por MB WAY</h2><p id="mbt"></p><button id="cn" class="s" type="button">Copiar número</button></div>
 <p class="d" id="ob"></p>
 <button id="cp2" class="s" type="button">Copiar código</button><button id="jp" type="button" hidden>Já paguei</button><a id="wa" class="b" target="_blank" rel="noopener" hidden>Enviar comprovativo por WhatsApp</a><button id="pg" type="button" hidden>Ir para o pagamento</button></div>
 <script>
-var EXEC_URL='https://script.google.com/macros/s/AKfycbweytocbJsQn3s4_hJkOUaxHrokagBa0JXhXTzDFEZOByswpnwwonjVkuoRo7s6pOUF3A/exec',MAX=20,$=function(i){return',MAX=20,$=function(i){return document.getElementById(i)};
+var EXEC_URL='COLOCAR_URL_EXEC_AQUI',MAX=20,$=function(i){return document.getElementById(i)};
+window.onerror=function(m){var e=document.getElementById('er');if(e)e.textContent='Erro ao carregar o formulário ('+m+'). Recarregue a página.'};
 function api(fn,arg){return new Promise(function(ok,ko){if(window.google&&google.script&&google.script.run){google.script.run.withSuccessHandler(ok).withFailureHandler(ko)[fn](arg)}
 else{fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({fn:fn,arg:arg})}).then(function(r){return r.json()}).then(ok,ko)}})}
-function linha(){var d=document.createElement('div');d.className='l';d.innerHTML='<div class="r"><input class="c" placeholder="Código do artigo" autocapitalize="characters"><input class="q" type="number" min="1" value="1" style="max-width:90px"></div><div class="d"></div>';
+function linha(){var d=document.createElement('div');d.className='l';d.innerHTML='<div class="r"><input class="c" list="cods" placeholder="Código do artigo (comece a escrever)" autocapitalize="characters" autocomplete="off"><input class="q" type="number" min="1" value="1" style="max-width:90px"></div><div class="d"></div>';
 var c=d.querySelector('.c'),i=d.querySelector('.d');c.addEventListener('change',function(){c.value=c.value.toUpperCase().trim();if(!c.value){i.textContent='';return}i.textContent='…';
 api('getArtigo',c.value).then(function(r){i.textContent=r.ok?r.descricao+(r.preco!=null?' — '+r.preco.toFixed(2).replace('.',',')+' €':''):r.erro;resumo()},function(){i.textContent='Erro de ligação.'})});
 d.querySelector('.q').addEventListener('input',resumo);$('ls').appendChild(d)}
+linha();$('add').onclick=function(){if($('ls').children.length<MAX)linha()};
 var eu=function(n){return n.toFixed(2).replace('.',',')+' €'},rq=0,rtm=null;
 /* Texto do ecrã final (função pura). r = resposta de criarEncomenda. */
 function fimInfo(r){var rc=r.metodo==='recolha',t='Artigos: '+(r.subtotal==null?'a confirmar':eu(r.subtotal))+'\n'+r.mensagem.split('. Faltam')[0]+'\nTotal: '+(r.total==null?'a confirmar':eu(r.total)),o={tot:t,mb:null,ob:'',wa:null,pg:false,jp:false},rec=rc?' A recolha em '+r.ponto+' ('+r.janela+') será combinada por WhatsApp.':'';
@@ -45,11 +47,13 @@ var PONTOS=['Tunes','Guia','Ferreiras','Algoz','Albufeira Centro'];
 function fillPontos(l,ref){var s=$('ponto');s.innerHTML='';l.forEach(function(p){var o=document.createElement('option');o.value=p;o.textContent=p+(p===ref?' (referência)':' (a combinar)');s.appendChild(o)})}
 function setMet(){var rc=$('met').value==='recolha';$('rc').hidden=!rc;$('eh').textContent=rc?'Dados de contacto e faturação':'Entrega';$('morada').placeholder=rc?'Morada para faturação (opcional)':'Morada';$('cp').placeholder=rc?'Cód. postal (opcional)':'Cód. postal 0000-000';$('localidade').placeholder=rc?'Localidade (opcional)':'Localidade'}
 $('met').addEventListener('change',function(){setMet();resumo()});fillPontos(PONTOS,'Tunes');setMet();
-linha();$('add').onclick=function(){if($('ls').children.length<MAX)linha()};
-api('getConfig').then(function(c){MAX=c.maxLinhas;window.PAGAR=c.urlPagar;if(c.pontos&&c.pontos.length)fillPontos(c.pontos,c.pontoReferencia)});
+api('getConfig').then(function(c){MAX=c.maxLinhas;window.PAGAR=c.urlPagar;window.RECOLHA_OK=(c.recolha===true);if(c.pontos&&c.pontos.length)fillPontos(c.pontos,c.pontoReferencia);
+$('ver').textContent='Formulário V1.4 · servidor '+(c.versao||'desatualizado (sem recolha local)');
+if(c.sugestoes)api('listarArtigos').then(function(r){var dl=$('cods');dl.innerHTML='';((r&&r.itens)||[]).forEach(function(x){var o=document.createElement('option');o.value=x.c;o.label=x.d;dl.appendChild(o)})},function(){})},
+function(){$('er').textContent=(EXEC_URL==='https://script.google.com/macros/s/AKfycbweytocbJsQn3s4_hJkOUaxHrokagBa0JXhXTzDFEZOByswpnwwonjVkuoRo7s6pOUF3A/exec'&&!(window.google&&google.script))?'URL do servidor por configurar (EXEC_URL).':'Sem ligação ao servidor. Verifique o URL /exec e se a implementação tem acesso "Qualquer pessoa".'});
 $('go').onclick=function(){var L=[].map.call($('ls').children,function(d){return{codigo:d.querySelector('.c').value,qtd:+d.querySelector('.q').value}}).filter(function(x){return x.codigo});
 var d={linhas:L,consentimento:$('ok').checked,website:$('website').value};['nome','email','telefone','morada','cp','localidade','pais','nif','notas'].forEach(function(k){d[k]=$(k).value});d.metodo=$('met').value;d.ponto=$('ponto').value;d.janela=$('janela').value;
-$('er').textContent='';$('go').disabled=true;api('criarEncomenda',d).then(function(r){$('go').disabled=false;if(!r.ok){$('er').textContent=r.erro;return}
+$('er').textContent='';if(d.metodo==='recolha'&&window.RECOLHA_OK===false){$('er').textContent='O servidor ainda não foi atualizado para a recolha local (Apps Script: Implementar > Gerir implementações > Nova versão). Pedido não enviado.';return}$('go').disabled=true;api('criarEncomenda',d).then(function(r){$('go').disabled=false;if(!r.ok){$('er').textContent=r.erro;return}
 $('f').hidden=true;$('fim').hidden=false;$('cod').textContent=r.codigo;var o=fimInfo(r);$('tot').textContent=o.tot;$('mb').hidden=!o.mb;$('mbt').textContent=o.mb||'';window.NUM=r.mbwayNumero;window.EML=d.email;$('ob').textContent=o.ob;$('jp').hidden=!o.jp;$('jp').disabled=false;$('jp').textContent='Já paguei';
 $('wa').hidden=!o.wa;if(o.wa){$('wa').textContent=o.wa.t;$('wa').href=o.wa.u}$('pg').hidden=!o.pg;window.PAGAR=r.urlPagar},
 function(){$('go').disabled=false;$('er').textContent='Erro de ligação. Tente de novo.'})};
